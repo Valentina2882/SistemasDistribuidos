@@ -2,13 +2,12 @@
  * @author
  * @version 1.0.0
  * 
- * Controlador de usuario
+ * Controlador de productos
  * Esta archivo define los controladores de products
  */
 
 const {response, request} = require('express');
 const { PrismaClient } = require('@prisma/client');
-const {Encrypt , Decrypt} =require('../middlewares/validate')
 
 const prisma = new PrismaClient();
 

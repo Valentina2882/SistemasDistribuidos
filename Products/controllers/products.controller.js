@@ -8,7 +8,6 @@
 
 const {response, request} = require('express');
 const { PrismaClient } = require('@prisma/client');
-const {Encrypt , Decrypt} =require('../middlewares/validate')
 
 const prisma = new PrismaClient();
 

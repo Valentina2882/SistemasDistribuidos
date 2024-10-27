@@ -27,9 +27,16 @@ const processPayment = async (req = request, res = response) => {
             }
         });
 
+        const token = CreateJWT ({
+            paymentId: payment.id,
+            status: payment.status,
+            amount: payment.amount
+        })
+
         res.json({
             message: 'Payment processed successfully.',
-            payment
+            payment,
+            token
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
