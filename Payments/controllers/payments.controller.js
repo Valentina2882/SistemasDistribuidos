@@ -1,5 +1,5 @@
 /**
- * @author kevin
+ * @author 
  * @version 1.0.0
  * 
  * Controlador de pagos
@@ -8,17 +8,21 @@
 
 const { response, request } = require('express');
 const { PrismaClient } = require('@prisma/client'); 
+const { Encrypt, Decrypt } = require('../middlewares/validate');
+const { CreateJWT } = require('../middlewares/jwt');
 
 const prisma = new PrismaClient();
 
 const processPayment = async (req = request, res = response) => {
-    const {amount, method } = req.body;
-
     try {
+        let { amount, method } = req.body;
+
+        const encryptMethod = Encrypt(method);
+
         const payment = await prisma.payments.create({
             data: {
-                amount,
-                method,
+                amount: amount,
+                method: encryptMethod,
                 status: 'processed',
             }
         });
@@ -34,11 +38,18 @@ const processPayment = async (req = request, res = response) => {
     }
 };
 
-
 const showPayments = async (req = request, res = response) => {
     try {
         const payments = await prisma.payments.findMany();
-        res.json({ payments });
+
+        const decryptPayments = payments.map(payment => ({
+            id: payment.id,
+            amount: payment.amount,
+            method: Decrypt(payment.method),
+            status: payment.status
+        }));
+
+        res.json({ payments: decryptPayments });
     } catch (error) {
         res.status(500).json({ message: error.message });
     } finally {
