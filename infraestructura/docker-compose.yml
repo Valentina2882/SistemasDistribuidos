@@ -10,6 +10,34 @@ services:
       - "3000:3000"
     volumes:
       - ./APIS/orders:/orders/orderAPI
+  
+  payments_api:
+    build: 
+      context: ./APIS
+      dockerfile: Dockerfile.payments
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./APIS/payments:/payments/paymentAPI
+  
+  products_api:
+    build: 
+      context: ./APIS
+      dockerfile: Dockerfile.products
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./APIS/products:/products/productAPI
+
+  shopping_api:
+    build: 
+      context: ./APIS
+      dockerfile: Dockerfile.shopping
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./APIS/shopping_Car:/shopping/shoppingAPI
+
 
 
   

@@ -9,9 +9,15 @@
   "author": "Zare",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "^5.21.1",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
-    "express": "^4.21.1"
+    "crypto-js": "^4.2.0",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.7"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5"
   }
 }
