@@ -5,9 +5,9 @@ services:
   orders_api:
     build: 
       context: ./APIS
-
+      dockerfile: Dockerfile.orders  
     ports:
-      -"3000:3000"
+      - "3000:3000"
     volumes:
       - ./APIS/orders:/orders/orderAPI
 
