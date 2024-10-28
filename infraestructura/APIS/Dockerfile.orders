@@ -17,7 +17,7 @@ RUN npm install prisma -g \
     && npm install jsonwebtoken -g \
     && npm install nodemon -g \
     && npm install @prisma/client -g \
-    && npm install axios
+    && npm install axios -g
 
 RUN mkdir -p /orders/orderAPI
 
