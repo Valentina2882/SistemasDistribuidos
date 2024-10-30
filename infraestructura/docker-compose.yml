@@ -2,42 +2,207 @@ version: '3.8'
 
 services:
 
+  # Servidor Web (Proxy)
+  webserver:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - orders_api
+      - payments_api
+      - products_api
+      - shopping_api
+    networks:
+      - dev_network
+
+  # API de Ordenes
   orders_api:
     build: 
       context: ./APIS
-      dockerfile: Dockerfile.orders  
+      dockerfile: Dockerfile.orders
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 256M
     ports:
-      - "3000:3000"
+      - "3000-3001:3000"
     volumes:
       - ./APIS/orders:/orders/orderAPI
-  
+    networks:
+      - dev_network
+    environment:
+      - DATABASE_URL=postgres://postgres:12345@orders_db_dev:5432/orders_db_dev?schema=public
+
+  # Base de Datos para Ordenes
+  orders_db_dev:
+    image: postgres
+    container_name: orders_db_dev
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 4GB
+        reservations:
+          cpus: "0.1"
+          memory: 1GB
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./orders_data_dev:/var/lib/postgresql/data
+    networks:
+      - dev_network
+
+  # API de Pagos
   payments_api:
     build: 
       context: ./APIS
       dockerfile: Dockerfile.payments
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 256M
     ports:
-      - "3001:3001"
+      - "3002-3003:3001"
     volumes:
       - ./APIS/payments:/payments/paymentAPI
-  
+    networks:
+      - dev_network
+    environment:
+      - DATABASE_URL=postgres://postgres:12345@payments_db_dev:5432/payments_db_dev?schema=public
+
+  # Base de Datos para Pagos
+  payments_db_dev:
+    image: postgres
+    container_name: payments_db_dev
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 4GB
+        reservations:
+          cpus: "0.1"
+          memory: 1GB
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./payments_data_dev:/var/lib/postgresql/data
+    networks:
+      - dev_network
+
+  # API de Productos
   products_api:
     build: 
       context: ./APIS
       dockerfile: Dockerfile.products
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 256M
     ports:
-      - "3002:3002"
+      - "3004-3005:3002"
     volumes:
       - ./APIS/products:/products/productAPI
+    networks:
+      - dev_network
+    environment:
+      - DATABASE_URL=postgres://postgres:12345@products_db_dev:5432/products_db_dev?schema=public
+    
+  # Base de Datos para Productos
+  products_db_dev:
+    image: postgres
+    container_name: products_db_dev
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 4GB
+        reservations:
+          cpus: "0.1"
+          memory: 1GB
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./products_data_dev:/var/lib/postgresql/data
+    networks:
+      - dev_network
 
+  # API de Carrito de Compras
   shopping_api:
     build: 
       context: ./APIS
       dockerfile: Dockerfile.shopping
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 256M
     ports:
-      - "3003:3003"
+      - "3006-3007:3003"
     volumes:
       - ./APIS/shopping_Car:/shopping/shoppingAPI
+    networks:
+      - dev_network
+    environment:
+      - DATABASE_URL=postgres://postgres:12345@shopping_db_dev:5432/shopping_db_dev?schema=public
 
+  # Base de Datos para Carrito de Compras
+  shopping_db_dev:
+    image: postgres
+    container_name: shopping_db_dev
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 4GB
+        reservations:
+          cpus: "0.1"
+          memory: 1GB
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./shopping_data_dev:/var/lib/postgresql/data
+    networks:
+      - dev_network
 
+  # pgAdmin para administrar bases de datos
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: dev_pgadmin
+    ports:
+      - 8888:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: zare@zare.com
+      PGADMIN_DEFAULT_PASSWORD: 12345
+    networks:
+      - dev_network
 
-  
+networks:
+  dev_network:
+    driver: bridge
