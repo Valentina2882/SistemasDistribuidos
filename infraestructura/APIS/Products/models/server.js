@@ -21,7 +21,7 @@ const cors = require('cors')
 class Server {
     constructor(){
         this.app = express(); //controlar todo lo relacionado a express
-        this.port = 3002; //controlar el puerto 
+        this.port = 3300; //controlar el puerto 
         this.path = '/api/'; // crear la carpeta api
         this.middlewares();
         this.routes();

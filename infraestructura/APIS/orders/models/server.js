@@ -10,9 +10,10 @@ const express = require('express');
 const cors = require('cors')
 
 class Server{
+    //manejar puerto 3100: aumentar 100 por cada uno
     constructor(){
         this.app = express ();
-        this.port = 3000;
+        this.port = 3100;
         this.path = '/api/';
         this.middlewares();
         this.routes();

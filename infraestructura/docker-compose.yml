@@ -30,7 +30,8 @@ services:
           cpus: "0.1"
           memory: 256M
     ports:
-      - "3000-3001:3000"
+    #el mismo que coloque en el server.js, colocar aca: 3100:3100
+      - "3100:3100"
     volumes:
       - ./APIS/orders:/orders/orderAPI
     networks:
@@ -51,7 +52,8 @@ services:
           cpus: "0.1"
           memory: 1GB
     ports:
-      - "5433:5432"
+    #5100:5432 asi sucesivamente
+      - "5100:5432"
     environment:
       POSTGRES_PASSWORD: 12345
     volumes:
@@ -74,7 +76,7 @@ services:
           cpus: "0.1"
           memory: 256M
     ports:
-      - "3002-3003:3001"
+      - "3200:3200"
     volumes:
       - ./APIS/payments:/payments/paymentAPI
     networks:
@@ -95,7 +97,7 @@ services:
           cpus: "0.1"
           memory: 1GB
     ports:
-      - "5434:5432"
+      - "5200:5432"
     environment:
       POSTGRES_PASSWORD: 12345
     volumes:
@@ -118,7 +120,7 @@ services:
           cpus: "0.1"
           memory: 256M
     ports:
-      - "3004-3005:3002"
+      - "3300:3300"
     volumes:
       - ./APIS/products:/products/productAPI
     networks:
@@ -139,7 +141,7 @@ services:
           cpus: "0.1"
           memory: 1GB
     ports:
-      - "5435:5432"
+      - "5300:5432"
     environment:
       POSTGRES_PASSWORD: 12345
     volumes:
@@ -162,7 +164,7 @@ services:
           cpus: "0.1"
           memory: 256M
     ports:
-      - "3006-3007:3003"
+      - "3400:3400"
     volumes:
       - ./APIS/shopping_Car:/shopping/shoppingAPI
     networks:
@@ -183,7 +185,7 @@ services:
           cpus: "0.1"
           memory: 1GB
     ports:
-      - "5436:5432"
+      - "5400:5432"
     environment:
       POSTGRES_PASSWORD: 12345
     volumes:

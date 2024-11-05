@@ -12,7 +12,7 @@ const cors = require ('cors')
 class Server{
     constructor(){
         this.app = express ();
-        this.port = 3001;
+        this.port = 3200;
         this.path = '/api/';
         this.middlewares();
         this.routes();
