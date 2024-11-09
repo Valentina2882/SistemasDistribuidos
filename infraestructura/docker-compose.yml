@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-
+  
   # Servidor Web (Proxy)
   webserver:
     build: ./nginx
@@ -30,7 +30,6 @@ services:
           cpus: "0.1"
           memory: 256M
     ports:
-    #el mismo que coloque en el server.js, colocar aca: 3100:3100
       - "3100:3100"
     volumes:
       - ./APIS/orders:/orders/orderAPI
@@ -52,12 +51,12 @@ services:
           cpus: "0.1"
           memory: 1GB
     ports:
-    #5100:5432 asi sucesivamente
       - "5100:5432"
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
     volumes:
-      - ./orders_data_dev:/var/lib/postgresql/data
+      - orders_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -99,9 +98,10 @@ services:
     ports:
       - "5200:5432"
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
     volumes:
-      - ./payments_data_dev:/var/lib/postgresql/data
+      - payments_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -143,9 +143,10 @@ services:
     ports:
       - "5300:5432"
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
     volumes:
-      - ./products_data_dev:/var/lib/postgresql/data
+      - products_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -187,9 +188,10 @@ services:
     ports:
       - "5400:5432"
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
     volumes:
-      - ./shopping_data_dev:/var/lib/postgresql/data
+      - shopping_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -208,3 +210,9 @@ services:
 networks:
   dev_network:
     driver: bridge
+
+volumes:
+  orders_data_dev:
+  payments_data_dev:
+  products_data_dev:
+  shopping_data_dev:
