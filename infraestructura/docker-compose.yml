@@ -1,7 +1,20 @@
 version: '3.8'
 
 services:
-  
+  postgres:
+    container_name: log
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: bd_audit
+    volumes:
+      - ./pg_logs:/var/lib/postgresql/data/pg_log
+    ports:
+      - "5432:5432"
+    networks:
+      - dev_network
+
   # Servidor Web (Proxy)
   webserver:
     build: ./nginx
@@ -206,6 +219,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: 12345
     networks:
       - dev_network
+
+  
 
 networks:
   dev_network:
