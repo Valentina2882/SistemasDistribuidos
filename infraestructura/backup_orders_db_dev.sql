@@ -26,6 +26,33 @@ CREATE SCHEMA auditoria;
 
 ALTER SCHEMA auditoria OWNER TO postgres;
 
+--
+-- Name: audit_function(); Type: FUNCTION; Schema: auditoria; Owner: postgres
+--
+
+CREATE FUNCTION auditoria.audit_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+IF(TG_OP = 'DELETE') THEN
+	INSERT INTO auditoria."Orders" (table_name, order_name, action, old_data, query)
+	VALUES (TG_TABLE_NAME, current_user, TG_OP, row_to_json(OLD), current_query());
+ELSIF (TG_OP = 'UPDATE') THEN
+	INSERT INTO auditoria."Orders" (table_name, order_name, action, old_data, new_data, query)
+	VALUES (TG_TABLE_NAME, current_user, TG_OP, row_to_json(OLD), row_to_json(NEW), current_query());
+ELSIF (TG_OP = 'INSERT') THEN
+	INSERT INTO auditoria."Orders" (table_name, order_name, action, new_data, query)
+	VALUES (TG_TABLE_NAME, current_user, TG_OP, row_to_json(NEW), current_query());
+END IF;
+
+RETURN NULL;
+END;
+$$;
+
+
+ALTER FUNCTION auditoria.audit_function() OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -172,6 +199,9 @@ ALTER TABLE ONLY public."Orders" ALTER COLUMN id SET DEFAULT nextval('public."Or
 --
 
 COPY auditoria."Orders" (id, table_name, order_name, action, old_data, new_data, query, "timestamp") FROM stdin;
+1	Orders	postgres	INSERT	\N	{"id": 1, "total": 130000, "status": "pending", "paymentId": null}	INSERT INTO public."Orders" (\ntotal, status) VALUES (\n$1::double precision, $2::text)\n returning id;	2024-11-13 17:22:40.246526
+3	Orders	postgres	UPDATE	{"id": 1, "total": 130000, "status": "pending", "paymentId": null}	{"id": 1, "total": 456456, "status": "cancelado", "paymentId": null}	UPDATE public."Orders" SET\ntotal = $1::double precision, status = $2::text WHERE\nid = 1;	2024-11-13 17:24:32.447266
+4	Orders	postgres	DELETE	{"id": 1, "total": 456456, "status": "cancelado", "paymentId": null}	\N	DELETE FROM public."Orders"\n    WHERE id IN\n        (1);	2024-11-13 17:25:14.626766
 \.
 
 
@@ -196,6 +226,7 @@ COPY public."Orders" (id, total, status, "paymentId") FROM stdin;
 --
 
 COPY public._prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count) FROM stdin;
+e2100ba4-14c3-4310-89f6-bdd7ecd8bbdd	5424d3f8b774eb4883f8e95bdbcf411124ba96ed957e6cbfaa815a20df4ecd4d	2024-11-12 23:01:34.001635+00	20241109030726_init	\N	\N	2024-11-12 23:01:33.917192+00	1
 b4a7b3f3-8d02-4680-b086-a588d02e34ed	5424d3f8b774eb4883f8e95bdbcf411124ba96ed957e6cbfaa815a20df4ecd4d	2024-11-12 22:01:39.807056+00	20241109030726_init	\N	\N	2024-11-12 22:01:39.744956+00	1
 \.
 
@@ -204,7 +235,7 @@ b4a7b3f3-8d02-4680-b086-a588d02e34ed	5424d3f8b774eb4883f8e95bdbcf411124ba96ed957
 -- Name: Orders_id_seq; Type: SEQUENCE SET; Schema: auditoria; Owner: postgres
 --
 
-SELECT pg_catalog.setval('auditoria."Orders_id_seq"', 1, false);
+SELECT pg_catalog.setval('auditoria."Orders_id_seq"', 4, true);
 
 
 --
@@ -218,7 +249,7 @@ SELECT pg_catalog.setval('public."OrderItem_id_seq"', 1, false);
 -- Name: Orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Orders_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Orders_id_seq"', 1, true);
 
 
 --
@@ -251,6 +282,13 @@ ALTER TABLE ONLY public."Orders"
 
 ALTER TABLE ONLY public._prisma_migrations
     ADD CONSTRAINT _prisma_migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: Orders orders_audit_trigger; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER orders_audit_trigger AFTER INSERT OR DELETE OR UPDATE ON public."Orders" FOR EACH ROW EXECUTE FUNCTION auditoria.audit_function();
 
 
 --

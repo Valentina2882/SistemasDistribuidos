@@ -8,8 +8,9 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: bd_audit
-    # volumes:
-    #   - ./pg_logs/postgresql.conf:/var/lib/postgresql/data/pg_log
+    volumes:
+      - ./pg_logs:/var/log/logs 
+
     ports:
       - "5433:5432"
     networks:
