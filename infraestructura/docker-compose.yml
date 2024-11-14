@@ -3,14 +3,16 @@ version: '3.8'
 services:
   postgres:
     container_name: log
-    image: postgres:15
+    image: postgres:17
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: bd_audit
+    build:
+      context: .
+      dockerfile: APIS/Dockerfile.audit_logs
     volumes:
       - ./pg_logs:/var/log/logs 
-
     ports:
       - "5433:5432"
     networks:
