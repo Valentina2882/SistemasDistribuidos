@@ -1,16 +1,20 @@
 version: '3.8'
 
+
 services:
-  postgres:
+  db_audit:
+    build:
+      context: .  # Asegúrate de que el contexto apunte al directorio correcto.
+      dockerfile: Dockerfile.audit_logs
     container_name: log
-    image: postgres:15
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: bd_audit
     volumes:
-      - ./pg_logs:/var/log/logs 
-
+      - db_audit:/var/lib/postgresql/data
+      - ./logs:/var/log/logs  # Mapea el directorio de logs en el host al contenedor.
+      - ./pg_logs/postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
       - "5433:5432"
     networks:
@@ -232,3 +236,4 @@ volumes:
   payments_data_dev:
   products_data_dev:
   shopping_data_dev:
+  db_audit:
