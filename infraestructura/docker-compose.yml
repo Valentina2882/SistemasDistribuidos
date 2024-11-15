@@ -1,26 +1,6 @@
 version: '3.8'
 
-
 services:
-  db_audit:
-    build:
-      context: .  # Asegúrate de que el contexto apunte al directorio correcto.
-      dockerfile: Dockerfile.audit_logs
-    container_name: log
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: bd_audit
-    volumes:
-      - db_audit:/var/lib/postgresql/data
-      - ./logs:/var/log/logs  # Mapea el directorio de logs en el host al contenedor.
-      - ./pg_logs/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./pg_logs:/var/log/logs 
-    ports:
-      - "5433:5432"
-    networks:
-      - dev_network
 
   # Servidor Web (Proxy)
   webserver:
@@ -35,48 +15,87 @@ services:
     networks:
       - dev_network
 
+  # Auditoría para la Base de Datos de Ordenes
+  orders_db_dev:
+    container_name: orders_db_dev
+    build:
+      context: .
+      dockerfile: Dockerfile.audit_logs
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./data/orders_data_dev:/var/lib/postgresql/data      # Directorio de datos
+      - ./logs/orders:/var/log/postgresql  # Monta el directorio de logs
+      - ./pg_logs/postgresql.conf:/etc/postgresql/postgresql.conf                    # Directorio para los logs
+    ports:
+      - "5100:5432"  # Aseguramos que el puerto esté disponible externamente
+    networks:
+      - dev_network
+
+  # Auditoría para la Base de Datos de Pagos
+  payments_db_dev:
+    container_name: payments_db_dev
+    build:
+      context: .
+      dockerfile: Dockerfile.audit_logs
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./data/payments_data_dev:/var/lib/postgresql/data
+      - ./logs/payments:/var/log/postgresql  # Monta el directorio de logs
+      - ./pg_logs/postgresql.conf:/etc/postgresql/postgresql.conf   
+    ports:
+      - "5200:5432"
+    networks:
+      - dev_network
+
+  # Auditoría para la Base de Datos de Productos
+  products_db_dev:
+    container_name: products_db_dev
+    build:
+      context: .
+      dockerfile: Dockerfile.audit_logs
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./data/products_data_dev:/var/lib/postgresql/data
+      - ./logs/products:/var/log/postgresql  # Monta el directorio de logs
+      - ./pg_logs/postgresql.conf:/etc/postgresql/postgresql.conf   
+    ports:
+      - "5300:5432"
+    networks:
+      - dev_network
+
+  # Auditoría para la Base de Datos de Carrito de Compras
+  shopping_db_dev:
+    container_name: shopping_db_dev
+    build:
+      context: .
+      dockerfile: Dockerfile.audit_logs
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./data/shopping_data_dev:/var/lib/postgresql/data
+      - ./logs/shopping:/var/log/postgresql  # Monta el directorio de logs
+      - ./pg_logs/postgresql.conf:/etc/postgresql/postgresql.conf  
+    ports:
+      - "5400:5432"
+    networks:
+      - dev_network
+
   # API de Ordenes
   orders_api:
     build: 
       context: ./APIS
       dockerfile: Dockerfile.orders
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 512M
-        reservations:
-          cpus: "0.1"
-          memory: 256M
     ports:
       - "3100:3100"
-    volumes:
-      - ./APIS/orders:/orders/orderAPI
-    networks:
-      - dev_network
     environment:
       - DATABASE_URL=postgres://postgres:12345@orders_db_dev:5432/orders_db_dev?schema=public
-
-  # Base de Datos para Ordenes
-  orders_db_dev:
-    image: postgres
-    container_name: orders_db_dev
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 4GB
-        reservations:
-          cpus: "0.1"
-          memory: 1GB
-    ports:
-      - "5100:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345
-    volumes:
-      - ./data/orders_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -85,43 +104,10 @@ services:
     build: 
       context: ./APIS
       dockerfile: Dockerfile.payments
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 512M
-        reservations:
-          cpus: "0.1"
-          memory: 256M
     ports:
       - "3200:3200"
-    volumes:
-      - ./APIS/payments:/payments/paymentAPI
-    networks:
-      - dev_network
     environment:
       - DATABASE_URL=postgres://postgres:12345@payments_db_dev:5432/payments_db_dev?schema=public
-
-  # Base de Datos para Pagos
-  payments_db_dev:
-    image: postgres
-    container_name: payments_db_dev
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 4GB
-        reservations:
-          cpus: "0.1"
-          memory: 1GB
-    ports:
-      - "5200:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345
-    volumes:
-      - ./data/payments_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -130,43 +116,10 @@ services:
     build: 
       context: ./APIS
       dockerfile: Dockerfile.products
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 512M
-        reservations:
-          cpus: "0.1"
-          memory: 256M
     ports:
       - "3300:3300"
-    volumes:
-      - ./APIS/products:/products/productAPI
-    networks:
-      - dev_network
     environment:
       - DATABASE_URL=postgres://postgres:12345@products_db_dev:5432/products_db_dev?schema=public
-    
-  # Base de Datos para Productos
-  products_db_dev:
-    image: postgres
-    container_name: products_db_dev
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 4GB
-        reservations:
-          cpus: "0.1"
-          memory: 1GB
-    ports:
-      - "5300:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345
-    volumes:
-      - ./data/products_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -175,43 +128,10 @@ services:
     build: 
       context: ./APIS
       dockerfile: Dockerfile.shopping
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 512M
-        reservations:
-          cpus: "0.1"
-          memory: 256M
     ports:
       - "3400:3400"
-    volumes:
-      - ./APIS/shopping_Car:/shopping/shoppingAPI
-    networks:
-      - dev_network
     environment:
       - DATABASE_URL=postgres://postgres:12345@shopping_db_dev:5432/shopping_db_dev?schema=public
-
-  # Base de Datos para Carrito de Compras
-  shopping_db_dev:
-    image: postgres
-    container_name: shopping_db_dev
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 4GB
-        reservations:
-          cpus: "0.1"
-          memory: 1GB
-    ports:
-      - "5400:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345
-    volumes:
-      - ./data/shopping_data_dev:/var/lib/postgresql/data
     networks:
       - dev_network
 
@@ -226,8 +146,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: 12345
     networks:
       - dev_network
-
-  
 
 networks:
   dev_network:
